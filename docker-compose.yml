@@ -7,6 +7,9 @@ networks:
             driver: default
             config:
                 - subnet: "172.18.0.0/16"
+volumes:
+  postgres-db-volume:
+    external: true
 
 services:  
   spark:
@@ -103,34 +106,17 @@ services:
     container_name: postgres
     ports:
       - '5432:5432'
+    environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: admin
+        POSTGRES_DB: admin
     volumes:
         - postgres-db-volume:/var/lib/postgresql/data
-    environment:
-        MYSQL_ROOT_USER: admin
-        MYSQL_ROOT_PASSWORD: admin
     networks:
       datapipeline:
         ipv4_address: 172.18.0.8
-      pg-network:
-        name: pg-database postgres:13
-  
-  pgadmin:
-    container_name: pgadmin4
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.org
-      PGADMIN_DEFAULT_PASSWORD: admin
       
-    volumes:
-       - pgadmin:/var/lib/pgadmin
-
-    ports:
-      - "5050:80"
-    networks:
-     pg-network:
-        name: pgadmin4 dpage/pgadmin4
-    
-
+  
   spark-consumer:
     image: docker.io/bitnami/spark:3.3.0
     container_name: spark-consumer
@@ -145,7 +131,7 @@ services:
         condition: service_completed_successfully
       cassandra-create-ks-topic:
         condition: service_completed_successfully
-      mysql:
+      postgres:
         condition: service_started
     volumes:
       - type: bind
@@ -163,7 +149,7 @@ services:
         condition: service_completed_successfully
       cassandra-create-ks-topic:
         condition: service_completed_successfully
-      mysql:
+      postgres:
         condition: service_started
     ports:
       - '8081:8080'
@@ -194,7 +180,7 @@ services:
         condition: service_completed_successfully
       cassandra-create-ks-topic:
         condition: service_completed_successfully
-      mysql:
+      postgres:
         condition: service_started
     volumes:
       - ./superset/dashboard/scripts:/scripts
