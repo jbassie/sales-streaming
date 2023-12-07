@@ -7,9 +7,6 @@ networks:
             driver: default
             config:
                 - subnet: "172.18.0.0/16"
-volumes:
-  postgres-db-volume:
-    external: true
 
 services:  
   spark:
@@ -101,22 +98,21 @@ services:
     volumes:
       - ./cassandra/cassandra-init.sh:/cassandra-init.sh
   
-  postgres:
-    image: postgres:13
-    container_name: postgres
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
     ports:
-      - '5432:5432'
-    environment:
-        POSTGRES_USER: admin
-        POSTGRES_PASSWORD: admin
-        POSTGRES_DB: admin
+      - '3306:3306'
+    command: --init-file /data/application/init.sql
     volumes:
-        - postgres-db-volume:/var/lib/postgresql/data
+        - ./mysql/init.sql:/data/application/init.sql
+    environment:
+        MYSQL_ROOT_USER: root
+        MYSQL_ROOT_PASSWORD: secret
     networks:
       datapipeline:
         ipv4_address: 172.18.0.8
-      
-  
+
   spark-consumer:
     image: docker.io/bitnami/spark:3.3.0
     container_name: spark-consumer
@@ -131,7 +127,7 @@ services:
         condition: service_completed_successfully
       cassandra-create-ks-topic:
         condition: service_completed_successfully
-      postgres:
+      mysql:
         condition: service_started
     volumes:
       - type: bind
@@ -149,7 +145,7 @@ services:
         condition: service_completed_successfully
       cassandra-create-ks-topic:
         condition: service_completed_successfully
-      postgres:
+      mysql:
         condition: service_started
     ports:
       - '8081:8080'
@@ -180,7 +176,7 @@ services:
         condition: service_completed_successfully
       cassandra-create-ks-topic:
         condition: service_completed_successfully
-      postgres:
+      mysql:
         condition: service_started
     volumes:
       - ./superset/dashboard/scripts:/scripts

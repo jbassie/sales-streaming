@@ -7,8 +7,8 @@ client.login(username="admin",password="admin")
 #connect Superset to Postgres DB
 database_id = client.create_database(
     database="Postgres",
-    engine = "postgres"
-    driver= "pyscopg2"
+    engine = "postgres",
+    driver= "pyscopg2",
     sqlalchemy_uri:"postgresql://admin:admin@172.18.0.8:5432/sales_db"
 )
  dataset_id = client.create_database(
