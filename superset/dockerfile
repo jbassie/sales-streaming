@@ -1,8 +1,8 @@
-FROM apacche/superset:latest
+FROM apache/superset:latest
 
 USER root
 
-RUN PIP install psycopg2 sqlalchemy
+RUN pip install psycopg2 sqlalchemy mysqlclient
 
 ENV ADMIN_USERNAME admin 
 ENV ADMIN_EMAIL admin@superset.com
