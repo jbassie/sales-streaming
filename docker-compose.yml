@@ -98,38 +98,20 @@ services:
     volumes:
       - ./cassandra/cassandra-init.sh:/cassandra-init.sh
   
-  postgres:
-    image: postgres:13
-    container_name: postgres
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
     ports:
-      - '5432:5432'
+      - '3306:3306'
+    command: --init-file /data/application/init.sql
     volumes:
-        - postgres-db-volume:/var/lib/postgresql/data
+        - ./mysql/init.sql:/data/application/init.sql
     environment:
-        MYSQL_ROOT_USER: admin
-        MYSQL_ROOT_PASSWORD: admin
+        MYSQL_ROOT_USER: root
+        MYSQL_ROOT_PASSWORD: secret
     networks:
       datapipeline:
         ipv4_address: 172.18.0.8
-      pg-network:
-        name: pg-database postgres:13
-  
-  pgadmin:
-    container_name: pgadmin4
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.org
-      PGADMIN_DEFAULT_PASSWORD: admin
-      
-    volumes:
-       - pgadmin:/var/lib/pgadmin
-
-    ports:
-      - "5050:80"
-    networks:
-     pg-network:
-        name: pgadmin4 dpage/pgadmin4
-    
 
   spark-consumer:
     image: docker.io/bitnami/spark:3.3.0
