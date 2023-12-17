@@ -96,4 +96,4 @@ query2 = final_df.writeStream \
     .foreachBatch(save_to_mysql)
     .start()
 
-query2.awaitTermination()
+query2.awaitTermination() 
